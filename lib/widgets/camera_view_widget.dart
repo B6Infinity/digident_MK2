@@ -23,6 +23,14 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
     _initializeUDPService();
   }
 
+  @override
+  void dispose() {
+    _udpService.dispose();
+    super.dispose();
+  }
+
+  // <Future>s -----
+
   Future<void> _initializeUDPService() async {
     try {
       await _udpService.initialize();
@@ -72,6 +80,8 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
     await _initializeUDPService();
   }
 
+  // Widgets -------
+
   Widget _buildErrorWidget() {
     return Center(
       child: Padding(
@@ -88,9 +98,7 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
             Text(
               _errorMessage ?? 'An error occurred',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
-              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
@@ -165,9 +173,10 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: _isConnected
-                  ? Colors.green.withAlpha((0.7 * 255).toInt())
-                  : Colors.red.withAlpha((0.7 * 255).toInt()),
+              color:
+                  _isConnected
+                      ? Colors.green.withAlpha((0.7 * 255).toInt())
+                      : Colors.red.withAlpha((0.7 * 255).toInt()),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
@@ -184,10 +193,7 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
                 const SizedBox(width: 8),
                 Text(
                   _isConnected ? 'Connected' : 'Disconnected',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                  ),
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
                 ),
               ],
             ),
@@ -196,6 +202,8 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
       ],
     );
   }
+
+  // ---------------
 
   @override
   Widget build(BuildContext context) {
@@ -208,11 +216,5 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
     }
 
     return _buildCameraPreview();
-  }
-
-  @override
-  void dispose() {
-    _udpService.dispose();
-    super.dispose();
   }
 }

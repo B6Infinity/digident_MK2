@@ -6,33 +6,40 @@ class CameraViewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Widgets -------
+    AppBar appBar = AppBar(
+      title: const Text('DigiDent Device Stream'),
+      centerTitle: true,
+      elevation: 2,
+      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+    );
+
+    Widget cameraView = Expanded(
+      child: Container(
+        margin: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Colors.black.withAlpha((0.1 * 255).toInt()),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const ClipRRect(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+          child: CameraViewWidget(),
+        ),
+      ),
+    );
+
+    // ---------------
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        title: const Text('DigiDent Device Stream'),
-        centerTitle: true,
-        elevation: 2,
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-      ),
+      appBar: appBar,
       body: SafeArea(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Camera view
-              Expanded(
-                child: Container(
-                  margin: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withAlpha((0.1 * 255).toInt()),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                    child: CameraViewWidget(),
-                  ),
-                ),
-              ),
+              cameraView,
+
               // Make sure ... message
               Padding(
                 padding: const EdgeInsets.all(16.0),
