@@ -80,6 +80,14 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
     await _initializeUDPService();
   }
 
+  Future<Uint8List> captureAndSavePhoto() async {
+    while (_currentFrame == null) {
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+
+    return _currentFrame!;
+  }
+
   // Widgets -------
 
   Widget _buildErrorWidget() {
@@ -186,7 +194,7 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
                   width: 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: _isConnected ? Colors.red : Colors.white,
                     shape: BoxShape.circle,
                   ),
                 ),
