@@ -184,9 +184,11 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
       // Capture Button
       ElevatedButton(
         onPressed: () async {
-          setState(() {
-            _isCapturingPhoto = true;
-          });
+          if (mounted) {
+            setState(() {
+              _isCapturingPhoto = true;
+            });
+          }
           // Call the method to capture and save the photo
           await captureAndSavePhoto();
           if (lastPhoto != null) {
@@ -194,9 +196,11 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
             // This requires converting this StatelessWidget to StatefulWidget
             print("Captured Photo: ${lastPhoto!.length} bytes");
           }
-          setState(() {
-            _isCapturingPhoto = false;
-          });
+          if (mounted) {
+            setState(() {
+              _isCapturingPhoto = false;
+            });
+          }
         },
         style: ElevatedButton.styleFrom(
           shape: const CircleBorder(),

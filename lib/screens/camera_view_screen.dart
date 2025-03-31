@@ -19,20 +19,6 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
       backgroundColor: Theme.of(context).colorScheme.primaryContainer,
     );
 
-    // Widget cameraView = Expanded(
-    //   child: Container(
-    //     margin: const EdgeInsets.all(16.0),
-    //     decoration: BoxDecoration(
-    //       color: Colors.black.withAlpha((0.1 * 255).toInt()),
-    //       borderRadius: BorderRadius.circular(12),
-    //     ),
-    //     child: const ClipRRect(
-    //       borderRadius: BorderRadius.all(Radius.circular(12)),
-    //       child: CameraViewWidget(),
-    //     ),
-    //   ),
-    // );
-
     // ---------------
 
     return Scaffold(
