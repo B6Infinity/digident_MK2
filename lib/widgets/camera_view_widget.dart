@@ -1,5 +1,6 @@
 // camera_view_widget.dart
 
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../services/udp_service.dart';
@@ -16,6 +17,10 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
   Uint8List? _currentFrame;
   bool _isConnected = false;
   String? _errorMessage;
+
+  // Capture Variables
+  bool _isCapturingPhoto = false;
+  File? lastPhoto;
 
   @override
   void initState() {
@@ -143,6 +148,64 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
     );
   }
 
+  Widget get captureWidget => Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      // Capture Button
+      ElevatedButton(
+        onPressed: () async {
+          setState(() {
+            _isCapturingPhoto = true;
+          });
+          // Call the method to capture and save the photo
+          // lastPhoto = await CameraViewWidget.captureAndSavePhoto();
+          lastPhoto = null;
+          print("BUTEL!!!");
+          await Future.delayed(const Duration(seconds: 1));
+          if (lastPhoto != null) {
+            // Update the state to show the preview of the last photo
+            // This requires converting this StatelessWidget to StatefulWidget
+          }
+          setState(() {
+            _isCapturingPhoto = false;
+          });
+        },
+        style: ElevatedButton.styleFrom(
+          shape: const CircleBorder(),
+          padding: const EdgeInsets.all(16),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+        ),
+        child:
+            _isCapturingPhoto
+                ? const CircularProgressIndicator(color: Colors.white)
+                : Icon(Icons.camera_alt, size: 32, color: Colors.white),
+      ),
+      const SizedBox(width: 16),
+      // Last Photo Preview
+      Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Theme.of(context).colorScheme.primary,
+            width: 2,
+          ),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child:
+              lastPhoto != null
+                  ? Image.file(lastPhoto!, fit: BoxFit.cover)
+                  : Container(
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.image, color: Colors.grey),
+                  ),
+        ),
+      ),
+    ],
+  );
+
   Widget _buildCameraPreview() {
     if (_currentFrame == null) {
       return const Center(child: Text('Waiting for video stream...'));
@@ -207,6 +270,7 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
             ),
           ),
         ),
+        Positioned(bottom: 16, left: 0, right: 0, child: captureWidget),
       ],
     );
   }
@@ -215,14 +279,27 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
 
   @override
   Widget build(BuildContext context) {
+    Widget? childWidget;
+
     if (_errorMessage != null) {
-      return _buildErrorWidget();
+      childWidget = _buildErrorWidget();
+    } else if (!_isConnected) {
+      childWidget = _buildNoConnectionWidget();
+    } else {
+      childWidget = _buildCameraPreview();
     }
 
-    if (!_isConnected) {
-      return _buildNoConnectionWidget();
-    }
+    Widget cameraView = Expanded(
+      child: Container(
+        margin: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Colors.black.withAlpha((0.1 * 255).toInt()),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: childWidget,
+      ),
+    );
 
-    return _buildCameraPreview();
+    return cameraView;
   }
 }
