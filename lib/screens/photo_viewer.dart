@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:digident/services/string_manipulators.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -20,15 +21,11 @@ class _PhotoViewerState extends State<PhotoViewer> {
       appBar: AppBar(title: const Text('Photo Viewer'), elevation: 4),
       body: Column(
         children: [
-          Expanded(
-            child: InteractiveViewer(
-              child: Center(child: Image.file(widget.photo)),
-            ),
-          ),
+          InteractiveViewer(child: Center(child: Image.file(widget.photo))),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              'Photo clicked on: ${File(widget.photo.path).lastModifiedSync()}',
+              formatDateTime("${File(widget.photo.path).lastModifiedSync()}"),
               style: const TextStyle(fontSize: 16),
             ),
           ),
@@ -76,7 +73,9 @@ class _PhotoViewerState extends State<PhotoViewer> {
                   final RenderBox box = context.findRenderObject() as RenderBox;
                   await Share.shareXFiles(
                     [XFile(widget.photo.path)],
-                    subject: 'Check out this photo!',
+                    subject: formatDateTime(
+                      "${File(widget.photo.path).lastModifiedSync()}",
+                    ),
                     sharePositionOrigin:
                         box.localToGlobal(Offset.zero) & box.size,
                   );
