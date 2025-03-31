@@ -1,8 +1,11 @@
 // camera_view_widget.dart
 
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import '../services/udp_service.dart';
 
 class CameraViewWidget extends StatefulWidget {
@@ -20,18 +23,37 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
 
   // Capture Variables
   bool _isCapturingPhoto = false;
-  File? lastPhoto;
+  Uint8List? lastPhoto;
+  late Directory capturedPhotosDirectory;
 
   @override
   void initState() {
     super.initState();
     _initializeUDPService();
+
+    // Ensure the "captured_photos" directory exists
+    _initializeCapturedPhotosDirectory();
   }
 
   @override
   void dispose() {
     _udpService.dispose();
     super.dispose();
+  }
+
+  void _initializeCapturedPhotosDirectory() async {
+    final appDirectory = await getApplicationDocumentsDirectory();
+    capturedPhotosDirectory = Directory('${appDirectory.path}/captured_photos');
+    if (!await capturedPhotosDirectory.exists()) {
+      await capturedPhotosDirectory.create(recursive: true);
+      print("[INFO] ${appDirectory.path}/captured_photos -> Created directory");
+    } else {
+      print(
+        "[INFO] ${appDirectory.path}/captured_photos -> Directory already exists",
+      );
+    }
+
+    // `/data/user/0/com.example.digident/app_flutter/captured_photos`
   }
 
   // <Future>s -----
@@ -85,12 +107,20 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
     await _initializeUDPService();
   }
 
-  Future<Uint8List> captureAndSavePhoto() async {
+  Future<void> captureAndSavePhoto() async {
     while (_currentFrame == null) {
       await Future.delayed(const Duration(milliseconds: 100));
     }
 
-    return _currentFrame!;
+    final filePath =
+        '${capturedPhotosDirectory.path}/photo_${DateTime.now().millisecondsSinceEpoch}.png';
+    final file = File(filePath);
+    await file.writeAsBytes(_currentFrame!);
+    lastPhoto = file.readAsBytesSync();
+
+    /* NOTE: I understand for robustness, the file could be written and then read and retured, but why cant we just?
+    `lastPhoto = _currentFrame!;`
+    it would save process power and time!*/
   }
 
   // Widgets -------
@@ -158,13 +188,11 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
             _isCapturingPhoto = true;
           });
           // Call the method to capture and save the photo
-          // lastPhoto = await CameraViewWidget.captureAndSavePhoto();
-          lastPhoto = null;
-          print("BUTEL!!!");
-          await Future.delayed(const Duration(seconds: 1));
+          await captureAndSavePhoto();
           if (lastPhoto != null) {
             // Update the state to show the preview of the last photo
             // This requires converting this StatelessWidget to StatefulWidget
+            print("Captured Photo: ${lastPhoto!.length} bytes");
           }
           setState(() {
             _isCapturingPhoto = false;
@@ -196,7 +224,7 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
           borderRadius: BorderRadius.circular(8),
           child:
               lastPhoto != null
-                  ? Image.file(lastPhoto!, fit: BoxFit.cover)
+                  ? Image.memory(lastPhoto!, fit: BoxFit.cover)
                   : Container(
                     color: Colors.grey[300],
                     child: const Icon(Icons.image, color: Colors.grey),
@@ -206,7 +234,7 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
     ],
   );
 
-  Widget _buildCameraPreview() {
+  Widget _buildCameraPreviewAndCaptureWidget() {
     if (_currentFrame == null) {
       return const Center(child: Text('Waiting for video stream...'));
     }
@@ -286,7 +314,7 @@ class _CameraViewWidgetState extends State<CameraViewWidget> {
     } else if (!_isConnected) {
       childWidget = _buildNoConnectionWidget();
     } else {
-      childWidget = _buildCameraPreview();
+      childWidget = _buildCameraPreviewAndCaptureWidget();
     }
 
     Widget cameraView = Expanded(
