@@ -1,5 +1,6 @@
 import 'package:digident/config/app_config.dart';
 import 'package:digident/screens/camera_view_screen.dart';
+import 'package:digident/screens/smart_gallery.dart';
 import 'package:digident/services/input_field_controllers.dart';
 import 'package:flutter/material.dart';
 
@@ -122,8 +123,10 @@ class _HomeState extends State<Home> {
             margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: InkWell(
               onTap: () {
-                // Navigate to the gallery screen
-                // Navigator.pushNamed(context, '/gallery');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SmartGallery()),
+                );
               },
               child: Padding(
                 padding: EdgeInsets.all(16),
@@ -132,7 +135,7 @@ class _HomeState extends State<Home> {
                     Icon(Icons.photo_library, size: 40, color: Colors.green),
                     SizedBox(width: 16),
                     Text(
-                      'Gallery',
+                      'Smart Gallery',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -150,7 +153,11 @@ class _HomeState extends State<Home> {
     // ------------
 
     return Scaffold(
-      appBar: AppBar(title: Text("DigiDent MK2")),
+      appBar: AppBar(
+        title: Text("DigiDent MK2"),
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        elevation: 4,
+      ),
       drawer: homeDrawer,
       body: screenSelector,
     );
