@@ -21,8 +21,10 @@ class UDPService {
     try {
       await dispose();
 
-      _socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4,
-          AppConfig.SERVER_PORT); // Listen to all IPS at the port 12345
+      _socket = await RawDatagramSocket.bind(
+        InternetAddress.anyIPv4,
+        AppConfig.SERVER_PORT,
+      ); // Listen to all IPS at the port 12345
       _setupSocketListeners();
       _startHeartbeat();
       _sendConnectMessage();
@@ -72,8 +74,9 @@ class UDPService {
     if (data.length == 4) {
       // _expectedChunks = data.buffer.asByteData().getInt32(0, Endian.little);
       incomingSize = data.buffer.asByteData().getInt32(0, Endian.little);
-      _expectedChunks = (incomingSize / AppConfig.MAX_BUFFER_SIZE)
-          .ceil(); // 1562 / 1024 = (1.52).ceil() = 2
+      _expectedChunks =
+          (incomingSize / AppConfig.MAX_BUFFER_SIZE)
+              .ceil(); // 1562 / 1024 = (1.52).ceil() = 2
 
       _chunks.clear();
       // _chunks.addAll(List.filled(_expectedChunks, [])); // Useful when each packet has a chunk number in the beginning of it
@@ -105,9 +108,10 @@ class UDPService {
 
   void _assembleAndDeliverFrame() {
     try {
-      final completeImage = _chunks
-          .expand((chunk) => chunk)
-          .toList(); // Convert [[x,y,z], [a,b,c]] to [x,y,z,a,b,c]
+      final completeImage =
+          _chunks
+              .expand((chunk) => chunk)
+              .toList(); // Convert [[x,y,z], [a,b,c]] to [x,y,z,a,b,c]
       onFrameReceived?.call(Uint8List.fromList(completeImage));
     } catch (e) {
       onError?.call('Error assembling frame: $e');
