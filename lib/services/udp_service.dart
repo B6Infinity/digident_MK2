@@ -153,6 +153,19 @@ class UDPService {
   }
 
   Future<void> dispose() async {
+    // Sending 3 "STOP"s to make sure
+    for (int i = 0; i < 3; i++) {
+      try {
+        _socket?.send(
+          'STOP'.codeUnits,
+          InternetAddress(AppConfig.SERVER_IP),
+          AppConfig.SERVER_PORT,
+        );
+      } catch (e) {
+        onError?.call('Failed to send STOP message: $e');
+      }
+    }
+
     _heartbeatTimer?.cancel();
     _connectionTimeoutTimer?.cancel();
     _socket?.close();
